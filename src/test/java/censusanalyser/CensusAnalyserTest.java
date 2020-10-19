@@ -66,4 +66,15 @@ public class CensusAnalyserTest {
 			Assert.assertEquals(CensusAnalyserException.ExceptionType.MISMATCH, e.type);
 		}
 	}
+	
+	@Test
+	public void givenIndianStateCSV_shouldReturnExactCount() {
+		try {
+			CensusAnalyser censusAnalyser = new CensusAnalyser();
+			int numOfState = censusAnalyser.loadIndianStateCode(INDIA_STATE_CSV);
+			Assert.assertEquals(37, numOfState);
+		} catch (Exception e) {
+			//
+		}
+	}
 }
