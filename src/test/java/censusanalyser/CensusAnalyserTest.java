@@ -14,7 +14,8 @@ public class CensusAnalyserTest {
 	private static final String WRONG_FILE_TYPE = "./src/test/resources/IndiaStateCensusData.txt";
 	private static final String INDIA_STATE_CSV = "./src/test/resources/IndiaStateCode.csv";
 	private static final String WRONG_FILE_PATH_STATE = "./src/main/resources/IndiaStateCode.csv";
-	private static final String WRONG_FILE_TYPE_STATE = "./src/test/resources/IndiaStateCode.txt"; 
+	private static final String WRONG_FILE_TYPE_STATE = "./src/test/resources/IndiaStateCode.txt";
+	private static final String WRONG_DELIMETER_STATE = "./src/test/resources/WrongIndiaStateCode.csv"; 
 	
 	CensusAnalyser censusAnalyser = new CensusAnalyser();
 	
@@ -94,6 +95,15 @@ public class CensusAnalyserTest {
 			censusAnalyser.loadIndiaCensusData(WRONG_FILE_TYPE_STATE);
 		} catch (CensusAnalyserException e) {
 			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM, e.type);
+		}
+	}
+	
+	@Test
+	public void givenIndianStateCSV_WithWrongDelimeter_ShouldThrowException() {
+		try {
+			censusAnalyser.loadIndiaCensusData(WRONG_DELIMETER_STATE);
+		} catch (CensusAnalyserException e) {
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.MISMATCH, e.type);
 		}
 	}
 }
