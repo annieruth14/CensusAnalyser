@@ -16,9 +16,7 @@ public class CensusAnalyser {
 	public int loadIndiaCensusData(String csvFilePath) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
 			Iterator<IndiaCensusCSV> censusCSVIterator = this.getCSVFileIterator(reader, IndiaCensusCSV.class);
-			Iterable<IndiaCensusCSV> csvIterable = () -> censusCSVIterator;
-			int numOfEntries = (int) StreamSupport.stream(csvIterable.spliterator(), false).count();
-			return numOfEntries;
+			return this.getCount(censusCSVIterator);
 		} 
 		catch (IOException e) {
 			throw new CensusAnalyserException(e.getMessage(),
@@ -28,13 +26,11 @@ public class CensusAnalyser {
 			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.MISMATCH);
 		}
 	}
-	
+
 	public int loadIndianStateCode(String csvFilePath) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
 			Iterator<IndiaStateCodecsv> censusCSVIterator = this.getCSVFileIterator(reader, IndiaStateCodecsv.class);
-			Iterable<IndiaStateCodecsv> csvIterable = () -> censusCSVIterator;
-			int namOfEateries = (int) StreamSupport.stream(csvIterable.spliterator(), false).count();
-			return namOfEateries;
+			return getCount(censusCSVIterator);
 		} 
 		catch (IOException e) {
 			throw new CensusAnalyserException(e.getMessage(),
@@ -52,13 +48,19 @@ public class CensusAnalyser {
 			csvToBeanBuilder.withType(csvClass);
 			csvToBeanBuilder.withIgnoreLeadingWhiteSpace(true);
 			CsvToBean<E> csvToBean = csvToBeanBuilder.build();
-			Iterator<E> censusCSVIterator = censusCSVIterator = csvToBean.iterator();
+			Iterator<E> censusCSVIterator = csvToBean.iterator();
 			return censusCSVIterator;
 		}
 		catch (IllegalStateException e) {
 			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.UNABLE_TO_PARSE);
 		}
-		
-		
+	}
+	
+	private <E> int getCount(Iterator<E> iterator) {
+		Iterable<E> csvIterable = () -> iterator;
+		int numOfEntries = (int) StreamSupport
+				.stream(csvIterable.spliterator(), false)
+				.count();
+		return numOfEntries;
 	}
 }
