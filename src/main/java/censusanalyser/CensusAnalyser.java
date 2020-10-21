@@ -26,11 +26,16 @@ public class CensusAnalyser {
 		catch (RuntimeException e) {
 			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.MISMATCH);
 		}
+		catch (CSVException e) {
+			System.out.println("Exception found");
+			throw new CensusAnalyserException(e.getMessage(), e.type.name());
+		}
 	}
 
 	public int loadIndianStateCode(String csvFilePath) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
 			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
+			
 			Iterator<IndiaStateCodecsv> censusCSVIterator = csvBuilder.getCSVFileIterator(reader, IndiaStateCodecsv.class);
 			return getCount(censusCSVIterator);
 		} 
@@ -40,6 +45,9 @@ public class CensusAnalyser {
 		}
 		catch (RuntimeException e) {
 			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.MISMATCH);
+		}
+		catch (CSVException e) {
+			throw new CensusAnalyserException(e.getMessage(), e.type.name());
 		}
 	}
 	
