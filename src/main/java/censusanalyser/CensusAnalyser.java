@@ -54,7 +54,7 @@ public class CensusAnalyser {
 		}
 	}
 	
-	private <E> int getCount(Iterator<E> iterator) {
+	public static <E> int getCount(Iterator<E> iterator) {
 		Iterable<E> csvIterable = () -> iterator;
 		int numOfEntries = (int) StreamSupport
 				.stream(csvIterable.spliterator(), false)
