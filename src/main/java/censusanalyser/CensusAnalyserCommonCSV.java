@@ -17,8 +17,8 @@ public class CensusAnalyserCommonCSV {
 				CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
 						.withFirstRecordAsHeader());) 
 		{
-			List<CSVRecord> csvRecords = csvParser.getRecords();
-			return csvRecords.size();
+			Iterator<CSVRecord> csvRecords = csvParser.iterator();
+			return CensusAnalyser.getCount(csvRecords);
 		} 
 		catch (IOException e) {
 			throw new CensusAnalyserException(e.getMessage(),

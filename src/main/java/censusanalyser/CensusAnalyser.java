@@ -15,6 +15,9 @@ import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+
 public class CensusAnalyser {
 	public int loadIndiaCensusData(String csvFilePath) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
@@ -60,5 +63,19 @@ public class CensusAnalyser {
 				.stream(csvIterable.spliterator(), false)
 				.count();
 		return numOfEntries;
+	}
+	
+	public int loadCensusDataforCommonCSV(String csvFilePath) throws CensusAnalyserException {
+		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));)
+		{
+			ICSVBuilder csvBuilder = CSVBuilderFactory.createCommonCSVBuilder();
+			Iterator<IndiaCensusCSV> censusCSVIterator = csvBuilder.getCSVFileIterator(reader , IndiaCensusCSV.class);
+			return getCount(censusCSVIterator);
+		} catch (IOException e) {
+			throw new CensusAnalyserException(e.getMessage(),
+					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+		} catch (CSVException e) {
+			throw new CensusAnalyserException(e.getMessage(), e.type.name());
+		}
 	}
 }
