@@ -121,8 +121,9 @@ public class CensusAnalyserTest {
 	@Test
 	public void givenIndianCensusCSVFile_whenUsedCommonCSV_shouldReturnCorrectRecord() {
 		try {
-			int numOfRecords = commonCSV.loadIndiaCensusData(INDIA_CENSUS_CSV_FILE_PATH);
+			int numOfRecords = censusAnalyser.loadCensusDataforCommonCSV(INDIA_CENSUS_CSV_FILE_PATH);
 			Assert.assertEquals(29, numOfRecords);
+			
 		} catch (CensusAnalyserException e) {
 			//
 		}
