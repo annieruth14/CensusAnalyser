@@ -1,6 +1,7 @@
 package censusanalyser;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 
@@ -9,9 +10,12 @@ import OpenCSV.ICSVBuilder;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.Iterator;
@@ -22,6 +26,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 
 public class CensusAnalyser {
+	private static final String JSON_FILE_PATH = "/home/annie/eclipse-workspace/CensusAnalyser-20201017T033040Z-001/CensusAnalyser/src/test/resources/StateCensusData.json";
+
 	public int loadIndiaCensusData(String csvFilePath) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
 			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
@@ -163,6 +169,31 @@ public class CensusAnalyser {
 			List<IndiaCensusCSV> censusCSVList = csvBuilder.getCSVFileList(reader, IndiaCensusCSV.class);
 			Comparator<IndiaCensusCSV> censusComparator = Comparator.comparing(census -> census.densityPerSqKm);
 			this.sortStatePopulation(censusCSVList, censusComparator);
+			String sortedStateCensusJson = new Gson().toJson(censusCSVList);
+			return sortedStateCensusJson;
+		} 
+		catch (IOException e) {
+			throw new CensusAnalyserException(e.getMessage(),
+					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+		} 
+		catch (RuntimeException e) {
+			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.MISMATCH);
+		}
+		catch (CSVException e) {
+			throw new CensusAnalyserException(e.getMessage(), e.type.name());
+		}
+	}
+
+	public String getAreaWiseSortedData(String csvFilePath) throws CensusAnalyserException {
+		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
+				Writer writer = Files.newBufferedWriter(Paths.get(JSON_FILE_PATH));) 
+		{
+			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
+			List<IndiaCensusCSV> censusCSVList = csvBuilder.getCSVFileList(reader, IndiaCensusCSV.class);
+			Comparator<IndiaCensusCSV> censusComparator = Comparator.comparing(census -> census.areaInSqKm);
+			this.sortStatePopulation(censusCSVList, censusComparator);
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		    gson.toJson(censusCSVList, writer);
 			String sortedStateCensusJson = new Gson().toJson(censusCSVList);
 			return sortedStateCensusJson;
 		} 
