@@ -87,7 +87,7 @@ public class CensusAnalyser {
 			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
 			List<IndiaCensusCSV> censusCSVList = csvBuilder.getCSVFileList(reader, IndiaCensusCSV.class);
 			Comparator<IndiaCensusCSV> censusComparator = Comparator.comparing(census -> census.state);
-			this.sort(censusCSVList, censusComparator);
+			this.sortStateName(censusCSVList, censusComparator);
 			String sortedStateCensusJson = new Gson().toJson(censusCSVList);
 			return sortedStateCensusJson;
 		} 
@@ -103,7 +103,32 @@ public class CensusAnalyser {
 		}
 	}
 
-	private void sort(List<IndiaCensusCSV> censusCSVList, Comparator<IndiaCensusCSV> censusComparator) {
+	private void sortStateName(List<IndiaCensusCSV> censusCSVList, Comparator<IndiaCensusCSV> censusComparator) {
 		censusCSVList.sort((IndiaCensusCSV census1 , IndiaCensusCSV census2 ) -> censusComparator.compare(census1, census2) );
+	}
+
+	public String getStateCodeSortedData(String csvFilePath) throws CensusAnalyserException {
+		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
+			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
+			List<IndiaStateCodecsv> censusCSVList = csvBuilder.getCSVFileList(reader, IndiaStateCodecsv.class);
+			Comparator<IndiaStateCodecsv> censusComparator = Comparator.comparing(census -> census.stateCode);
+			this.sortStateCode(censusCSVList, censusComparator);
+			String sortedStateCensusJson = new Gson().toJson(censusCSVList);
+			return sortedStateCensusJson;
+		} 
+		catch (IOException e) {
+			throw new CensusAnalyserException(e.getMessage(),
+					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+		} 
+		catch (RuntimeException e) {
+			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.MISMATCH);
+		}
+		catch (CSVException e) {
+			throw new CensusAnalyserException(e.getMessage(), e.type.name());
+		}
+	}
+
+	private void sortStateCode(List<IndiaStateCodecsv> censusCSVList, Comparator<IndiaStateCodecsv> censusComparator) {
+		censusCSVList.sort((IndiaStateCodecsv census1 , IndiaStateCodecsv census2 ) -> censusComparator.compare(census1, census2) );
 	}
 }
