@@ -1,5 +1,6 @@
 package censusanalyser;
 
+import com.google.gson.Gson;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 
@@ -11,6 +12,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.List;
@@ -78,5 +80,30 @@ public class CensusAnalyser {
 		} catch (CSVException e) {
 			throw new CensusAnalyserException(e.getMessage(), e.type.name());
 		}
+	}
+
+	public String getStateWiseSortedData(String csvFilePath) throws CensusAnalyserException {
+		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
+			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
+			List<IndiaCensusCSV> censusCSVList = csvBuilder.getCSVFileList(reader, IndiaCensusCSV.class);
+			Comparator<IndiaCensusCSV> censusComparator = Comparator.comparing(census -> census.state);
+			this.sort(censusCSVList, censusComparator);
+			String sortedStateCensusJson = new Gson().toJson(censusCSVList);
+			return sortedStateCensusJson;
+		} 
+		catch (IOException e) {
+			throw new CensusAnalyserException(e.getMessage(),
+					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+		} 
+		catch (RuntimeException e) {
+			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.MISMATCH);
+		}
+		catch (CSVException e) {
+			throw new CensusAnalyserException(e.getMessage(), e.type.name());
+		}
+	}
+
+	private void sort(List<IndiaCensusCSV> censusCSVList, Comparator<IndiaCensusCSV> censusComparator) {
+		censusCSVList.sort((IndiaCensusCSV census1 , IndiaCensusCSV census2 ) -> censusComparator.compare(census1, census2) );
 	}
 }

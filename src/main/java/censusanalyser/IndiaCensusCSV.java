@@ -23,6 +23,6 @@ public class IndiaCensusCSV {
                 ", Population='" + population + '\'' +
                 ", AreaInSqKm='" + areaInSqKm + '\'' +
                 ", DensityPerSqKm='" + densityPerSqKm + '\'' +
-                '}';
+                '}' + "\n";
     }
 }
